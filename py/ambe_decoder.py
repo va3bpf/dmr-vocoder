@@ -397,7 +397,11 @@ class Decoder:
             keep = Parms()
             keep.copy_from(prev)
         bad = decode_parms(d49, cur, prev, unvc_scale=not noise)
-        if bad in (2, 3):
+        if bad == 2:  # erasure: a lost frame filled in upstream; as DVSI, the last frame again (mbelib mutes it)
+            cur.copy_from(prev)
+            cur.repeat += 1
+            bad = 0
+        elif bad == 3:
             cur.repeat = 0
         elif errs2 > 3:
             cur.copy_from(prev)

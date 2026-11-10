@@ -397,7 +397,12 @@ int ambe_dec_frame(ambe_decoder *d, const uint8_t in9[9], int16_t pcm[AMBE_N])
             keep = *prev;
         }
         int bad = ambe_decode_parms(d49, cur, prev);
-        if (bad == 2 || bad == 3) {
+        if (bad == 2) { /* erasure (b0 120..123): a lost frame a repeater or the network filled in; as DVSI, the last
+                           frame again (mbelib mutes it: a 60 ms gap and the voice starting again from nothing) */
+            *cur = *prev;
+            cur->repeat++;
+            bad = 0;
+        } else if (bad == 3) {
             cur->repeat = 0;
         } else if (errs > 3) {
             *cur = *prev;
